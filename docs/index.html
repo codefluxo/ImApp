@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <title>ImApp — Lightweight C# Desktop Framework</title>
 
-    <meta
-        name="description"
-        content="ImApp is a lightweight C# application framework for native desktop applications using Dear ImGui, GLFW and OpenGL."
-    >
+    <meta name="description"
+        content="ImApp is a lightweight C# application framework for native desktop applications using Dear ImGui, GLFW and OpenGL.">
 
     <style>
         :root {
@@ -56,11 +55,9 @@
             overflow-x: hidden;
 
             background:
-                radial-gradient(
-                    circle at 50% -10%,
+                radial-gradient(circle at 50% -10%,
                     rgba(255, 255, 255, .055),
-                    transparent 38%
-                ),
+                    transparent 38%),
                 var(--bg);
 
             color: var(--text);
@@ -86,23 +83,17 @@
             pointer-events: none;
 
             background-image:
-                linear-gradient(
+                linear-gradient(rgba(255, 255, 255, .012) 1px,
+                    transparent 1px),
+                linear-gradient(90deg,
                     rgba(255, 255, 255, .012) 1px,
-                    transparent 1px
-                ),
-                linear-gradient(
-                    90deg,
-                    rgba(255, 255, 255, .012) 1px,
-                    transparent 1px
-                );
+                    transparent 1px);
 
             background-size: 32px 32px;
 
-            mask-image: linear-gradient(
-                to bottom,
-                black,
-                transparent 70%
-            );
+            mask-image: linear-gradient(to bottom,
+                    black,
+                    transparent 70%);
         }
 
         a {
@@ -126,10 +117,8 @@
         }
 
         .container {
-            width: min(
-                var(--max-width),
-                calc(100% - 40px)
-            );
+            width: min(var(--max-width),
+                    calc(100% - 40px));
 
             margin: 0 auto;
         }
@@ -188,15 +177,13 @@
             border-radius: 8px;
 
             background:
-                linear-gradient(
-                    145deg,
+                linear-gradient(145deg,
                     #1d2025,
-                    #101114
-                );
+                    #101114);
 
             box-shadow:
-                inset 0 1px 0 rgba(255,255,255,.07),
-                0 4px 15px rgba(0,0,0,.25);
+                inset 0 1px 0 rgba(255, 255, 255, .07),
+                0 4px 15px rgba(0, 0, 0, .25);
         }
 
         .brand-icon::before {
@@ -253,7 +240,7 @@
 
         .nav-links a:hover {
             color: var(--text);
-            background: rgba(255,255,255,.05);
+            background: rgba(255, 255, 255, .05);
         }
 
         .nav-github {
@@ -289,11 +276,9 @@
 
             transform: translateX(-50%);
 
-            background: radial-gradient(
-                ellipse,
-                rgba(255,255,255,.055),
-                transparent 68%
-            );
+            background: radial-gradient(ellipse,
+                    rgba(255, 255, 255, .055),
+                    transparent 68%);
 
             pointer-events: none;
         }
@@ -312,7 +297,7 @@
             border: 1px solid var(--border);
             border-radius: 999px;
 
-            background: rgba(255,255,255,.025);
+            background: rgba(255, 255, 255, .025);
 
             color: var(--text-soft);
 
@@ -331,7 +316,7 @@
             background: #aeb4bc;
 
             box-shadow:
-                0 0 0 3px rgba(174,180,188,.08);
+                0 0 0 3px rgba(174, 180, 188, .08);
         }
 
         .hero h1 {
@@ -342,11 +327,9 @@
             margin: 25px auto 0;
 
             font-size:
-                clamp(
-                    46px,
+                clamp(46px,
                     7vw,
-                    82px
-                );
+                    82px);
 
             line-height: .98;
 
@@ -450,8 +433,8 @@
             text-align: left;
 
             box-shadow:
-                0 35px 100px rgba(0,0,0,.35),
-                0 0 0 1px rgba(255,255,255,.015);
+                0 35px 100px rgba(0, 0, 0, .35),
+                0 0 0 1px rgba(255, 255, 255, .015);
         }
 
         .code-titlebar {
@@ -609,13 +592,13 @@
             border-right: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
 
-            background: rgba(255,255,255,.008);
+            background: rgba(255, 255, 255, .008);
 
             transition: background .2s;
         }
 
         .feature:hover {
-            background: rgba(255,255,255,.025);
+            background: rgba(255, 255, 255, .025);
         }
 
         .feature:nth-child(3n) {
@@ -717,7 +700,7 @@
 
             border-left-color: #777d85;
 
-            background: rgba(255,255,255,.025);
+            background: rgba(255, 255, 255, .025);
         }
 
         .docs-content {
@@ -934,9 +917,7 @@
 
         footer {
             padding:
-                30px
-                0
-                calc(30px + env(safe-area-inset-bottom));
+                30px 0 calc(30px + env(safe-area-inset-bottom));
 
             border-top: 1px solid var(--border);
 
@@ -954,16 +935,47 @@
         }
 
         /* ==================================================
+   APPLICATION PREVIEW
+================================================== */
+
+        .app-preview {
+            position: relative;
+
+            width: 100%;
+            max-width: 1000px;
+
+            margin: 64px auto 0;
+
+            overflow: hidden;
+
+            border: 1px solid var(--border);
+            border-radius: 13px;
+
+            background: var(--surface);
+
+            box-shadow:
+                0 35px 100px rgba(0, 0, 0, .4),
+                0 0 0 1px rgba(255, 255, 255, .015);
+        }
+
+        .app-preview img {
+            display: block;
+
+            width: 100%;
+            height: auto;
+
+            vertical-align: middle;
+        }
+
+        /* ==================================================
            TABLET
         ================================================== */
 
         @media (max-width: 900px) {
 
             .container {
-                width: min(
-                    var(--max-width),
-                    calc(100% - 32px)
-                );
+                width: min(var(--max-width),
+                        calc(100% - 32px));
             }
 
             .hero {
@@ -1010,8 +1022,7 @@
 
             .docs-sidebar a {
                 border:
-                    1px solid
-                    var(--border);
+                    1px solid var(--border);
 
                 border-radius: 6px;
             }
@@ -1071,8 +1082,7 @@
 
             .hero {
                 padding:
-                    72px 0
-                    60px;
+                    72px 0 60px;
             }
 
             .eyebrow {
@@ -1084,11 +1094,9 @@
                 margin-top: 20px;
 
                 font-size:
-                    clamp(
-                        40px,
+                    clamp(40px,
                         13vw,
-                        58px
-                    );
+                        58px);
 
                 letter-spacing: -.065em;
             }
@@ -1106,10 +1114,8 @@
                 display: grid;
                 grid-template-columns: 1fr;
 
-                width: min(
-                    100%,
-                    320px
-                );
+                width: min(100%,
+                        320px);
 
                 margin-left: auto;
                 margin-right: auto;
@@ -1265,9 +1271,7 @@
 
             .install-card-title {
                 padding:
-                    15px
-                    15px
-                    0;
+                    15px 15px 0;
             }
 
             .install-card pre {
@@ -1359,27 +1363,17 @@
 
         <div class="container nav-inner">
 
-            <a
-                class="brand"
-                href="#top"
-                aria-label="ImApp home"
-            >
+            <a class="brand" href="#top" aria-label="ImApp home">
                 <span class="brand-icon"></span>
                 <span>ImApp</span>
             </a>
 
 
-            <nav
-                class="nav-links"
-                aria-label="Main navigation"
-            >
+            <nav class="nav-links" aria-label="Main navigation">
                 <a href="#features">Features</a>
                 <a href="#docs">Docs</a>
                 <a href="#install">Install</a>
-                <a
-                    class="nav-github"
-                    href="#"
-                >
+                <a class="nav-github" href="#">
                     Source
                 </a>
             </nav>
@@ -1396,10 +1390,7 @@
              HERO
         ================================================== -->
 
-        <section
-            class="hero"
-            style="border-top: 0;"
-        >
+        <section class="hero" style="border-top: 0;">
 
             <div class="container">
 
@@ -1424,20 +1415,20 @@
 
                 <div class="hero-buttons">
 
-                    <a
-                        class="button button-primary"
-                        href="#install"
-                    >
+                    <a class="button button-primary" href="#install">
                         Get Started
                     </a>
 
-                    <a
-                        class="button button-secondary"
-                        href="#docs"
-                    >
+                    <a class="button button-secondary" href="#docs">
                         Read Documentation
                     </a>
 
+                </div>
+
+                <!-- Application Preview -->
+
+                <div class="app-preview">
+                    <img src="docs/Screenshot%20From%202026-10-04%2007-38-51.png" alt="ImApp application preview">
                 </div>
 
 
@@ -1699,10 +1690,7 @@ app.<span class="method">Run</span>(() =>
 
                         <!-- Quick Start -->
 
-                        <article
-                            class="doc-block"
-                            id="docs-start"
-                        >
+                        <article class="doc-block" id="docs-start">
 
                             <h3>
                                 Quick Start
@@ -1716,7 +1704,7 @@ app.<span class="method">Run</span>(() =>
 
                             <div class="doc-code">
 
-<pre><code><span class="kw">using</span> <span class="type">Hexa.NET.ImGui</span>;
+                                <pre><code><span class="kw">using</span> <span class="type">Hexa.NET.ImGui</span>;
 <span class="kw">using</span> <span class="type">ImApp</span>;
 
 <span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
@@ -1740,10 +1728,7 @@ app.<span class="method">Run</span>(() =>
 
                         <!-- Window Options -->
 
-                        <article
-                            class="doc-block"
-                            id="docs-options"
-                        >
+                        <article class="doc-block" id="docs-options">
 
                             <h3>
                                 Window Options
@@ -1757,7 +1742,7 @@ app.<span class="method">Run</span>(() =>
 
                             <div class="doc-code">
 
-<pre><code><span class="kw">var</span> options = <span class="kw">new</span> <span class="type">WindowOptions</span>
+                                <pre><code><span class="kw">var</span> options = <span class="kw">new</span> <span class="type">WindowOptions</span>
 <span class="punctuation">{</span>
     <span class="property">Title</span> = <span class="str">"My Application"</span>,
     <span class="property">Width</span> = <span class="num">1000</span>,
@@ -1900,10 +1885,7 @@ app.<span class="method">Run</span>(() =>
 
                         <!-- Host Window -->
 
-                        <article
-                            class="doc-block"
-                            id="docs-host"
-                        >
+                        <article class="doc-block" id="docs-host">
 
                             <h3>
                                 Host Window
@@ -1917,7 +1899,7 @@ app.<span class="method">Run</span>(() =>
 
                             <div class="doc-code">
 
-<pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
+                                <pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
 <span class="punctuation">{</span>
     <span class="property">HostWindow</span> = <span class="kw">true</span>
 <span class="punctuation">}</span>);
@@ -1938,7 +1920,7 @@ app.<span class="method">Run</span>(() =>
 
                             <div class="doc-code">
 
-<pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
+                                <pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
 <span class="punctuation">{</span>
     <span class="property">HostWindow</span> = <span class="kw">false</span>
 <span class="punctuation">}</span>);
@@ -1955,10 +1937,7 @@ app.<span class="method">Run</span>(() =>
 
                         <!-- Docking -->
 
-                        <article
-                            class="doc-block"
-                            id="docs-docking"
-                        >
+                        <article class="doc-block" id="docs-docking">
 
                             <h3>
                                 Docking
@@ -1972,7 +1951,7 @@ app.<span class="method">Run</span>(() =>
 
                             <div class="doc-code">
 
-<pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
+                                <pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
 <span class="punctuation">{</span>
     <span class="property">Width</span> = <span class="num">1200</span>,
     <span class="property">Height</span> = <span class="num">800</span>,
@@ -1991,10 +1970,7 @@ app.<span class="method">Run</span>(() =>
 
                         <!-- Transparent -->
 
-                        <article
-                            class="doc-block"
-                            id="docs-transparent"
-                        >
+                        <article class="doc-block" id="docs-transparent">
 
                             <h3>
                                 Transparent & Borderless Windows
@@ -2008,7 +1984,7 @@ app.<span class="method">Run</span>(() =>
 
                             <div class="doc-code">
 
-<pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
+                                <pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
 <span class="punctuation">{</span>
     <span class="property">Decorated</span> = <span class="kw">false</span>,
     <span class="property">Transparent</span> = <span class="kw">true</span>,
@@ -2022,10 +1998,7 @@ app.<span class="method">Run</span>(() =>
 
                         <!-- Font -->
 
-                        <article
-                            class="doc-block"
-                            id="docs-font"
-                        >
+                        <article class="doc-block" id="docs-font">
 
                             <h3>
                                 Font
@@ -2040,7 +2013,7 @@ app.<span class="method">Run</span>(() =>
 
                             <div class="doc-code">
 
-<pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
+                                <pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
 <span class="punctuation">{</span>
     <span class="property">FontSize</span> = <span class="num">18</span>
 <span class="punctuation">}</span>);</code></pre>
@@ -2052,10 +2025,7 @@ app.<span class="method">Run</span>(() =>
 
                         <!-- Dependencies -->
 
-                        <article
-                            class="doc-block"
-                            id="docs-dependencies"
-                        >
+                        <article class="doc-block" id="docs-dependencies">
 
                             <h3>
                                 Dependencies
@@ -2214,4 +2184,5 @@ app.<span class="method">Run</span>(() =>
     </footer>
 
 </body>
+
 </html>
