@@ -1,0 +1,2217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <title>ImApp — Lightweight C# Desktop Framework</title>
+
+    <meta
+        name="description"
+        content="ImApp is a lightweight C# application framework for native desktop applications using Dear ImGui, GLFW and OpenGL."
+    >
+
+    <style>
+        :root {
+            --bg: #08090a;
+            --bg-soft: #0d0e10;
+            --surface: #111214;
+            --surface-2: #15171a;
+            --surface-3: #191b1f;
+
+            --border: #24272c;
+            --border-light: #30343a;
+
+            --text: #f5f7fa;
+            --text-soft: #c7cbd1;
+            --muted: #858b94;
+
+            --code: #0a0b0d;
+
+            --keyword: #c586c0;
+            --type: #4ec9b0;
+            --string: #ce9178;
+            --number: #b5cea8;
+            --method: #dcdcaa;
+            --property: #9cdcfe;
+            --comment: #6a9955;
+            --punctuation: #d4d4d4;
+
+            --radius: 12px;
+            --max-width: 1160px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 78px;
+        }
+
+        body {
+            margin: 0;
+            min-width: 0;
+            overflow-x: hidden;
+
+            background:
+                radial-gradient(
+                    circle at 50% -10%,
+                    rgba(255, 255, 255, .055),
+                    transparent 38%
+                ),
+                var(--bg);
+
+            color: var(--text);
+
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            line-height: 1.6;
+        }
+
+        body::before {
+            content: "";
+
+            position: fixed;
+            inset: 0;
+
+            pointer-events: none;
+
+            background-image:
+                linear-gradient(
+                    rgba(255, 255, 255, .012) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, .012) 1px,
+                    transparent 1px
+                );
+
+            background-size: 32px 32px;
+
+            mask-image: linear-gradient(
+                to bottom,
+                black,
+                transparent 70%
+            );
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        code,
+        pre {
+            font-family:
+                "JetBrains Mono",
+                "SFMono-Regular",
+                Consolas,
+                "Liberation Mono",
+                monospace;
+        }
+
+        .container {
+            width: min(
+                var(--max-width),
+                calc(100% - 40px)
+            );
+
+            margin: 0 auto;
+        }
+
+        /* ==================================================
+           NAVIGATION
+        ================================================== */
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+
+            height: 64px;
+
+            border-bottom: 1px solid rgba(255, 255, 255, .07);
+
+            background: rgba(8, 9, 10, .82);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            padding-top: env(safe-area-inset-top);
+        }
+
+        .nav-inner {
+            height: 64px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+
+            font-size: 15px;
+            font-weight: 650;
+            letter-spacing: -.02em;
+
+            flex-shrink: 0;
+        }
+
+        .brand-icon {
+            position: relative;
+
+            width: 30px;
+            height: 30px;
+
+            display: grid;
+            place-items: center;
+
+            border: 1px solid #3b4047;
+            border-radius: 8px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #1d2025,
+                    #101114
+                );
+
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.07),
+                0 4px 15px rgba(0,0,0,.25);
+        }
+
+        .brand-icon::before {
+            content: "";
+
+            width: 14px;
+            height: 11px;
+
+            border: 1.5px solid #dfe3e8;
+            border-radius: 3px;
+
+            opacity: .95;
+        }
+
+        .brand-icon::after {
+            content: "";
+
+            position: absolute;
+
+            width: 6px;
+            height: 1px;
+
+            top: 9px;
+
+            background: #dfe3e8;
+
+            opacity: .75;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-links a {
+            display: inline-flex;
+            align-items: center;
+
+            min-height: 36px;
+
+            padding: 7px 10px;
+
+            border-radius: 7px;
+
+            color: var(--muted);
+
+            font-size: 13px;
+
+            transition:
+                color .15s,
+                background .15s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+            background: rgba(255,255,255,.05);
+        }
+
+        .nav-github {
+            margin-left: 8px;
+
+            border: 1px solid var(--border) !important;
+
+            color: var(--text) !important;
+        }
+
+        /* ==================================================
+           HERO
+        ================================================== */
+
+        .hero {
+            position: relative;
+
+            padding: 115px 0 95px;
+
+            text-align: center;
+        }
+
+        .hero::before {
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: 50%;
+
+            width: min(700px, 100%);
+            height: 300px;
+
+            transform: translateX(-50%);
+
+            background: radial-gradient(
+                ellipse,
+                rgba(255,255,255,.055),
+                transparent 68%
+            );
+
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            position: relative;
+
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            max-width: 100%;
+
+            padding: 6px 11px;
+
+            border: 1px solid var(--border);
+            border-radius: 999px;
+
+            background: rgba(255,255,255,.025);
+
+            color: var(--text-soft);
+
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .eyebrow-dot {
+            width: 6px;
+            height: 6px;
+
+            flex-shrink: 0;
+
+            border-radius: 50%;
+
+            background: #aeb4bc;
+
+            box-shadow:
+                0 0 0 3px rgba(174,180,188,.08);
+        }
+
+        .hero h1 {
+            position: relative;
+
+            max-width: 850px;
+
+            margin: 25px auto 0;
+
+            font-size:
+                clamp(
+                    46px,
+                    7vw,
+                    82px
+                );
+
+            line-height: .98;
+
+            letter-spacing: -.065em;
+
+            font-weight: 720;
+        }
+
+        .hero h1 span {
+            color: #9da3ab;
+        }
+
+        .hero-description {
+            position: relative;
+
+            max-width: 660px;
+
+            margin: 26px auto 0;
+
+            color: var(--muted);
+
+            font-size: 17px;
+        }
+
+        .hero-buttons {
+            position: relative;
+
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+
+            margin-top: 34px;
+        }
+
+        .button {
+            min-height: 44px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 0 17px;
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            font-size: 13px;
+            font-weight: 550;
+
+            transition:
+                transform .15s,
+                background .15s,
+                border-color .15s;
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+        }
+
+        .button-primary {
+            color: #08090a;
+            background: #f3f4f5;
+            border-color: #f3f4f5;
+        }
+
+        .button-primary:hover {
+            background: #dfe1e4;
+        }
+
+        .button-secondary {
+            background: var(--surface);
+            color: var(--text-soft);
+        }
+
+        .button-secondary:hover {
+            background: var(--surface-2);
+            border-color: var(--border-light);
+            color: var(--text);
+        }
+
+        /* ==================================================
+           CODE WINDOW
+        ================================================== */
+
+        .code-window {
+            position: relative;
+
+            width: 100%;
+            max-width: 850px;
+
+            margin: 58px auto 0;
+
+            overflow: hidden;
+
+            border: 1px solid var(--border);
+            border-radius: 13px;
+
+            background: var(--code);
+
+            text-align: left;
+
+            box-shadow:
+                0 35px 100px rgba(0,0,0,.35),
+                0 0 0 1px rgba(255,255,255,.015);
+        }
+
+        .code-titlebar {
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 15px;
+
+            border-bottom: 1px solid var(--border);
+
+            color: #6f757d;
+
+            font-size: 11px;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 6px;
+
+            margin-right: 13px;
+        }
+
+        .window-control {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #34383e;
+        }
+
+        .code-title {
+            opacity: .9;
+        }
+
+        .copy-label {
+            margin-left: auto;
+
+            color: #5d6269;
+        }
+
+        .code-window pre {
+            margin: 0;
+
+            padding: 26px;
+
+            overflow-x: auto;
+
+            color: #d4d4d8;
+
+            font-size: 12.5px;
+            line-height: 1.8;
+
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .kw {
+            color: var(--keyword);
+        }
+
+        .type {
+            color: var(--type);
+        }
+
+        .str {
+            color: var(--string);
+        }
+
+        .num {
+            color: var(--number);
+        }
+
+        .method {
+            color: var(--method);
+        }
+
+        .property {
+            color: var(--property);
+        }
+
+        .comment {
+            color: var(--comment);
+        }
+
+        .punctuation {
+            color: var(--punctuation);
+        }
+
+        /* ==================================================
+           SECTIONS
+        ================================================== */
+
+        section {
+            padding: 90px 0;
+
+            border-top: 1px solid var(--border);
+        }
+
+        .section-label {
+            margin-bottom: 9px;
+
+            color: #777d85;
+
+            font-size: 11px;
+            font-weight: 650;
+
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+
+        .section-heading {
+            max-width: 700px;
+
+            margin-bottom: 42px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+
+            font-size: 35px;
+            line-height: 1.12;
+
+            letter-spacing: -.045em;
+        }
+
+        .section-heading p {
+            margin: 13px 0 0;
+
+            color: var(--muted);
+
+            font-size: 15px;
+        }
+
+        /* ==================================================
+           FEATURES
+        ================================================== */
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+
+            overflow: hidden;
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .feature {
+            min-height: 175px;
+
+            padding: 28px;
+
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+
+            background: rgba(255,255,255,.008);
+
+            transition: background .2s;
+        }
+
+        .feature:hover {
+            background: rgba(255,255,255,.025);
+        }
+
+        .feature:nth-child(3n) {
+            border-right: 0;
+        }
+
+        .feature:nth-last-child(-n + 3) {
+            border-bottom: 0;
+        }
+
+        .feature-icon {
+            width: 30px;
+            height: 30px;
+
+            display: grid;
+            place-items: center;
+
+            margin-bottom: 18px;
+
+            border: 1px solid var(--border-light);
+            border-radius: 7px;
+
+            background: var(--surface);
+
+            color: var(--text-soft);
+
+            font-size: 11px;
+            font-family: monospace;
+        }
+
+        .feature h3 {
+            margin: 0 0 7px;
+
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .feature p {
+            margin: 0;
+
+            color: var(--muted);
+
+            font-size: 13px;
+        }
+
+        /* ==================================================
+           DOCUMENTATION
+        ================================================== */
+
+        .docs-layout {
+            display: grid;
+            grid-template-columns: 210px minmax(0, 1fr);
+
+            gap: 55px;
+
+            min-width: 0;
+        }
+
+        .docs-sidebar {
+            position: sticky;
+            top: 90px;
+
+            align-self: start;
+
+            min-width: 0;
+        }
+
+        .docs-sidebar-title {
+            margin-bottom: 10px;
+
+            color: #656a72;
+
+            font-size: 10px;
+            font-weight: 700;
+
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+
+        .docs-sidebar a {
+            display: block;
+
+            padding: 7px 9px;
+
+            border-left: 1px solid transparent;
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+            transition:
+                color .15s,
+                border-color .15s,
+                background .15s;
+        }
+
+        .docs-sidebar a:hover {
+            color: var(--text);
+
+            border-left-color: #777d85;
+
+            background: rgba(255,255,255,.025);
+        }
+
+        .docs-content {
+            min-width: 0;
+        }
+
+        .doc-block {
+            min-width: 0;
+
+            padding-bottom: 58px;
+            margin-bottom: 58px;
+
+            border-bottom: 1px solid var(--border);
+        }
+
+        .doc-block:last-child {
+            border-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .doc-block h3 {
+            margin: 0 0 10px;
+
+            font-size: 23px;
+            line-height: 1.2;
+
+            letter-spacing: -.03em;
+        }
+
+        .doc-block p {
+            max-width: 720px;
+
+            margin: 0 0 18px;
+
+            color: var(--muted);
+
+            font-size: 14px;
+        }
+
+        .doc-block code {
+            padding: 2px 5px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 4px;
+
+            background: var(--surface);
+
+            color: var(--text-soft);
+
+            font-size: .9em;
+        }
+
+        .doc-code {
+            width: 100%;
+            max-width: 100%;
+
+            margin: 18px 0;
+
+            overflow: hidden;
+
+            border: 1px solid var(--border);
+            border-radius: 9px;
+
+            background: var(--code);
+        }
+
+        .doc-code pre {
+            margin: 0;
+
+            padding: 20px;
+
+            max-width: 100%;
+
+            overflow-x: auto;
+
+            color: #d4d4d8;
+
+            font-size: 12px;
+            line-height: 1.75;
+
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* ==================================================
+           TABLE
+        ================================================== */
+
+        .table-wrapper {
+            width: 100%;
+
+            overflow-x: auto;
+
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .options-table {
+            width: 100%;
+            min-width: 600px;
+
+            border-collapse: collapse;
+
+            font-size: 12px;
+        }
+
+        .options-table th,
+        .options-table td {
+            padding: 11px 13px;
+
+            text-align: left;
+
+            border-bottom: 1px solid var(--border);
+        }
+
+        .options-table th {
+            background: var(--surface);
+
+            color: var(--text-soft);
+
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .options-table td {
+            color: var(--muted);
+        }
+
+        .options-table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .options-table td:first-child {
+            color: var(--property);
+
+            font-family:
+                "JetBrains Mono",
+                monospace;
+        }
+
+        /* ==================================================
+           INSTALL
+        ================================================== */
+
+        .install-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+
+            gap: 15px;
+
+            min-width: 0;
+        }
+
+        .install-card {
+            min-width: 0;
+
+            overflow: hidden;
+
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            background: var(--surface);
+        }
+
+        .install-card-title {
+            padding: 17px 19px 0;
+
+            color: var(--text-soft);
+
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .install-card pre {
+            margin: 0;
+
+            padding: 17px 19px;
+
+            overflow-x: auto;
+
+            font-size: 12px;
+
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* ==================================================
+           STACK
+        ================================================== */
+
+        .stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            padding: 7px 10px;
+
+            border: 1px solid var(--border);
+            border-radius: 7px;
+
+            background: var(--surface);
+
+            color: var(--muted);
+
+            font-size: 12px;
+        }
+
+        /* ==================================================
+           FOOTER
+        ================================================== */
+
+        footer {
+            padding:
+                30px
+                0
+                calc(30px + env(safe-area-inset-bottom));
+
+            border-top: 1px solid var(--border);
+
+            color: #656a71;
+
+            font-size: 12px;
+        }
+
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+        }
+
+        /* ==================================================
+           TABLET
+        ================================================== */
+
+        @media (max-width: 900px) {
+
+            .container {
+                width: min(
+                    var(--max-width),
+                    calc(100% - 32px)
+                );
+            }
+
+            .hero {
+                padding-top: 95px;
+            }
+
+            .features {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .feature:nth-child(3n) {
+                border-right: 1px solid var(--border);
+            }
+
+            .feature:nth-child(2n) {
+                border-right: 0;
+            }
+
+            .feature:nth-last-child(-n + 3) {
+                border-bottom: 1px solid var(--border);
+            }
+
+            .feature:nth-last-child(-n + 2) {
+                border-bottom: 0;
+            }
+
+            .docs-layout {
+                grid-template-columns: 1fr;
+                gap: 35px;
+            }
+
+            .docs-sidebar {
+                position: static;
+
+                display: flex;
+                flex-wrap: wrap;
+
+                gap: 5px;
+            }
+
+            .docs-sidebar-title {
+                width: 100%;
+            }
+
+            .docs-sidebar a {
+                border:
+                    1px solid
+                    var(--border);
+
+                border-radius: 6px;
+            }
+
+            .docs-sidebar a:hover {
+                border-color: var(--border-light);
+            }
+        }
+
+        /* ==================================================
+           MOBILE
+        ================================================== */
+
+        @media (max-width: 600px) {
+
+            .container {
+                width: calc(100% - 28px);
+            }
+
+            .navbar {
+                height: 58px;
+            }
+
+            .nav-inner {
+                height: 58px;
+            }
+
+            .brand {
+                font-size: 14px;
+            }
+
+            .brand-icon {
+                width: 28px;
+                height: 28px;
+            }
+
+            .nav-links {
+                gap: 2px;
+            }
+
+            .nav-links a {
+                min-height: 34px;
+
+                padding:
+                    6px 7px;
+
+                font-size: 11px;
+            }
+
+            .nav-links a:first-child {
+                display: none;
+            }
+
+            .nav-github {
+                margin-left: 3px;
+            }
+
+            .hero {
+                padding:
+                    72px 0
+                    60px;
+            }
+
+            .eyebrow {
+                font-size: 10px;
+                padding: 5px 9px;
+            }
+
+            .hero h1 {
+                margin-top: 20px;
+
+                font-size:
+                    clamp(
+                        40px,
+                        13vw,
+                        58px
+                    );
+
+                letter-spacing: -.065em;
+            }
+
+            .hero-description {
+                margin-top: 20px;
+
+                font-size: 14px;
+                line-height: 1.65;
+            }
+
+            .hero-buttons {
+                margin-top: 27px;
+
+                display: grid;
+                grid-template-columns: 1fr;
+
+                width: min(
+                    100%,
+                    320px
+                );
+
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .button {
+                width: 100%;
+                min-height: 46px;
+            }
+
+            .code-window {
+                margin-top: 42px;
+
+                border-radius: 10px;
+            }
+
+            .code-titlebar {
+                height: 39px;
+                padding: 0 12px;
+            }
+
+            .code-window pre {
+                padding: 18px;
+
+                font-size: 10.5px;
+                line-height: 1.7;
+            }
+
+            section {
+                padding: 65px 0;
+            }
+
+            .section-heading {
+                margin-bottom: 30px;
+            }
+
+            .section-label {
+                font-size: 10px;
+            }
+
+            .section-heading h2 {
+                font-size: 28px;
+
+                letter-spacing: -.04em;
+            }
+
+            .section-heading p {
+                font-size: 13px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+
+                border-radius: 10px;
+            }
+
+            .feature,
+            .feature:nth-child(2n),
+            .feature:nth-child(3n),
+            .feature:nth-last-child(-n + 2),
+            .feature:nth-last-child(-n + 3) {
+                min-height: auto;
+
+                padding: 23px;
+
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .feature:last-child {
+                border-bottom: 0;
+            }
+
+            .feature-icon {
+                margin-bottom: 14px;
+            }
+
+            .feature h3 {
+                font-size: 14px;
+            }
+
+            .feature p {
+                font-size: 12.5px;
+            }
+
+            .docs-layout {
+                gap: 25px;
+            }
+
+            .docs-sidebar {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .docs-sidebar-title {
+                grid-column: 1 / -1;
+            }
+
+            .docs-sidebar a {
+                display: flex;
+                align-items: center;
+
+                min-height: 38px;
+
+                padding: 7px 9px;
+
+                font-size: 11px;
+            }
+
+            .doc-block {
+                padding-bottom: 42px;
+                margin-bottom: 42px;
+            }
+
+            .doc-block h3 {
+                font-size: 20px;
+            }
+
+            .doc-block p {
+                font-size: 13px;
+            }
+
+            .doc-code {
+                border-radius: 8px;
+            }
+
+            .doc-code pre {
+                padding: 16px;
+
+                font-size: 10.5px;
+                line-height: 1.7;
+            }
+
+            .table-wrapper {
+                border-radius: 8px;
+            }
+
+            .options-table {
+                min-width: 570px;
+
+                font-size: 11px;
+            }
+
+            .options-table th,
+            .options-table td {
+                padding: 9px 10px;
+            }
+
+            .install-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .install-card-title {
+                padding:
+                    15px
+                    15px
+                    0;
+            }
+
+            .install-card pre {
+                padding: 15px;
+
+                font-size: 10.5px;
+            }
+
+            .stack {
+                gap: 6px;
+            }
+
+            .tag {
+                padding: 6px 8px;
+                font-size: 10.5px;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                align-items: flex-start;
+
+                gap: 8px;
+            }
+        }
+
+        /* ==================================================
+           VERY SMALL PHONES
+        ================================================== */
+
+        @media (max-width: 380px) {
+
+            .container {
+                width: calc(100% - 22px);
+            }
+
+            .nav-links a {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+
+            .hero h1 {
+                font-size: 39px;
+            }
+
+            .hero-description {
+                font-size: 13px;
+            }
+
+            .code-window pre {
+                font-size: 9.5px;
+            }
+
+            .docs-sidebar {
+                grid-template-columns: 1fr;
+            }
+
+            .docs-sidebar-title {
+                grid-column: auto;
+            }
+        }
+
+        /* ==================================================
+           REDUCED MOTION
+        ================================================== */
+
+        @media (prefers-reduced-motion: reduce) {
+
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <!-- ==================================================
+         Navigation
+    ================================================== -->
+
+    <header class="navbar">
+
+        <div class="container nav-inner">
+
+            <a
+                class="brand"
+                href="#top"
+                aria-label="ImApp home"
+            >
+                <span class="brand-icon"></span>
+                <span>ImApp</span>
+            </a>
+
+
+            <nav
+                class="nav-links"
+                aria-label="Main navigation"
+            >
+                <a href="#features">Features</a>
+                <a href="#docs">Docs</a>
+                <a href="#install">Install</a>
+                <a
+                    class="nav-github"
+                    href="#"
+                >
+                    Source
+                </a>
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <main id="top">
+
+
+        <!-- ==================================================
+             HERO
+        ================================================== -->
+
+        <section
+            class="hero"
+            style="border-top: 0;"
+        >
+
+            <div class="container">
+
+                <div class="eyebrow">
+                    <span class="eyebrow-dot"></span>
+                    Early development · .NET 10
+                </div>
+
+
+                <h1>
+                    Build native C# apps
+                    <span>with ImGui.</span>
+                </h1>
+
+
+                <p class="hero-description">
+                    ImApp is a lightweight application framework that gives
+                    your C# application a native window, OpenGL rendering,
+                    and Dear ImGui — without adding another UI layer.
+                </p>
+
+
+                <div class="hero-buttons">
+
+                    <a
+                        class="button button-primary"
+                        href="#install"
+                    >
+                        Get Started
+                    </a>
+
+                    <a
+                        class="button button-secondary"
+                        href="#docs"
+                    >
+                        Read Documentation
+                    </a>
+
+                </div>
+
+
+                <!-- Example -->
+
+                <div class="code-window">
+
+                    <div class="code-titlebar">
+
+                        <div class="window-controls">
+                            <span class="window-control"></span>
+                            <span class="window-control"></span>
+                            <span class="window-control"></span>
+                        </div>
+
+                        <span class="code-title">
+                            Program.cs
+                        </span>
+
+                        <span class="copy-label">
+                            C#
+                        </span>
+
+                    </div>
+
+
+                    <pre><code><span class="kw">using</span> <span class="type">Hexa.NET.ImGui</span>;
+<span class="kw">using</span> <span class="type">ImApp</span>;
+
+<span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
+<span class="punctuation">{</span>
+    <span class="property">Title</span> = <span class="str">"My Application"</span>,
+    <span class="property">Width</span> = <span class="num">1000</span>,
+    <span class="property">Height</span> = <span class="num">700</span>
+<span class="punctuation">}</span>);
+
+app.<span class="method">Run</span>(() =>
+<span class="punctuation">{</span>
+    ImGui.<span class="method">Begin</span>(<span class="str">"Hello"</span>);
+
+    ImGui.<span class="method">Text</span>(<span class="str">"Hello from ImApp!"</span>);
+
+    <span class="kw">if</span> (ImGui.<span class="method">Button</span>(<span class="str">"Click me"</span>))
+        <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">"Clicked!"</span>);
+
+    ImGui.<span class="method">End</span>();
+<span class="punctuation">}</span>);</code></pre>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             FEATURES
+        ================================================== -->
+
+        <section id="features">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <div class="section-label">
+                        Features
+                    </div>
+
+                    <h2>
+                        A small layer around
+                        a powerful UI library.
+                    </h2>
+
+                    <p>
+                        ImApp handles the application lifecycle, window,
+                        rendering and timing while Dear ImGui remains
+                        the UI API.
+                    </p>
+
+                </div>
+
+
+                <div class="features">
+
+                    <article class="feature">
+
+                        <div class="feature-icon">W</div>
+
+                        <h3>
+                            Native Windows
+                        </h3>
+
+                        <p>
+                            Desktop windows powered by GLFW with
+                            configurable window behavior.
+                        </p>
+
+                    </article>
+
+
+                    <article class="feature">
+
+                        <div class="feature-icon">UI</div>
+
+                        <h3>
+                            Dear ImGui
+                        </h3>
+
+                        <p>
+                            Use the Dear ImGui API directly without
+                            another widget abstraction.
+                        </p>
+
+                    </article>
+
+
+                    <article class="feature">
+
+                        <div class="feature-icon">GL</div>
+
+                        <h3>
+                            OpenGL
+                        </h3>
+
+                        <p>
+                            Built-in OpenGL rendering through the
+                            ImGui OpenGL backend.
+                        </p>
+
+                    </article>
+
+
+                    <article class="feature">
+
+                        <div class="feature-icon">□</div>
+
+                        <h3>
+                            Window Control
+                        </h3>
+
+                        <p>
+                            Borderless, transparent, resizable,
+                            maximized, topmost and passthrough windows.
+                        </p>
+
+                    </article>
+
+
+                    <article class="feature">
+
+                        <div class="feature-icon">⊞</div>
+
+                        <h3>
+                            Docking
+                        </h3>
+
+                        <p>
+                            Enable Dear ImGui docking for IDE-style
+                            application interfaces.
+                        </p>
+
+                    </article>
+
+
+                    <article class="feature">
+
+                        <div class="feature-icon">FPS</div>
+
+                        <h3>
+                            Frame Limiting
+                        </h3>
+
+                        <p>
+                            Configure a target rendering rate or
+                            disable the limiter completely.
+                        </p>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             DOCUMENTATION
+        ================================================== -->
+
+        <section id="docs">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <div class="section-label">
+                        Documentation
+                    </div>
+
+                    <h2>
+                        Everything you need to get started.
+                    </h2>
+
+                    <p>
+                        A compact reference for the core ImApp API.
+                    </p>
+
+                </div>
+
+
+                <div class="docs-layout">
+
+
+                    <!-- Documentation navigation -->
+
+                    <aside class="docs-sidebar">
+
+                        <div class="docs-sidebar-title">
+                            On this page
+                        </div>
+
+                        <a href="#docs-start">
+                            Quick Start
+                        </a>
+
+                        <a href="#docs-options">
+                            Window Options
+                        </a>
+
+                        <a href="#docs-host">
+                            Host Window
+                        </a>
+
+                        <a href="#docs-docking">
+                            Docking
+                        </a>
+
+                        <a href="#docs-transparent">
+                            Transparent Windows
+                        </a>
+
+                        <a href="#docs-font">
+                            Font
+                        </a>
+
+                        <a href="#docs-dependencies">
+                            Dependencies
+                        </a>
+
+                    </aside>
+
+
+                    <!-- Documentation content -->
+
+                    <div class="docs-content">
+
+
+                        <!-- Quick Start -->
+
+                        <article
+                            class="doc-block"
+                            id="docs-start"
+                        >
+
+                            <h3>
+                                Quick Start
+                            </h3>
+
+                            <p>
+                                Create an <code>App</code>, configure its
+                                window and pass your UI to <code>Run</code>.
+                            </p>
+
+
+                            <div class="doc-code">
+
+<pre><code><span class="kw">using</span> <span class="type">Hexa.NET.ImGui</span>;
+<span class="kw">using</span> <span class="type">ImApp</span>;
+
+<span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
+<span class="punctuation">{</span>
+    <span class="property">Title</span> = <span class="str">"My Application"</span>,
+    <span class="property">Width</span> = <span class="num">1000</span>,
+    <span class="property">Height</span> = <span class="num">700</span>
+<span class="punctuation">}</span>);
+
+app.<span class="method">Run</span>(() =>
+<span class="punctuation">{</span>
+    ImGui.<span class="method">Begin</span>(<span class="str">"Hello"</span>);
+    ImGui.<span class="method">Text</span>(<span class="str">"Hello from ImApp!"</span>);
+    ImGui.<span class="method">End</span>();
+<span class="punctuation">}</span>);</code></pre>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Window Options -->
+
+                        <article
+                            class="doc-block"
+                            id="docs-options"
+                        >
+
+                            <h3>
+                                Window Options
+                            </h3>
+
+                            <p>
+                                <code>WindowOptions</code> controls how
+                                the native GLFW window is created.
+                            </p>
+
+
+                            <div class="doc-code">
+
+<pre><code><span class="kw">var</span> options = <span class="kw">new</span> <span class="type">WindowOptions</span>
+<span class="punctuation">{</span>
+    <span class="property">Title</span> = <span class="str">"My Application"</span>,
+    <span class="property">Width</span> = <span class="num">1000</span>,
+    <span class="property">Height</span> = <span class="num">700</span>,
+
+    <span class="property">Decorated</span> = <span class="kw">true</span>,
+    <span class="property">Resizable</span> = <span class="kw">true</span>,
+    <span class="property">Transparent</span> = <span class="kw">false</span>,
+    <span class="property">Topmost</span> = <span class="kw">false</span>,
+
+    <span class="property">Maximized</span> = <span class="kw">false</span>,
+    <span class="property">Visible</span> = <span class="kw">true</span>,
+    <span class="property">Focused</span> = <span class="kw">true</span>,
+
+    <span class="property">MousePassthrough</span> = <span class="kw">false</span>,
+    <span class="property">DockingEnabled</span> = <span class="kw">false</span>,
+    <span class="property">HostWindow</span> = <span class="kw">true</span>,
+
+    <span class="property">TargetFps</span> = <span class="num">144</span>,
+    <span class="property">FontSize</span> = <span class="num">17</span>
+<span class="punctuation">}</span>;</code></pre>
+
+                            </div>
+
+
+                            <div class="table-wrapper">
+
+                                <table class="options-table">
+
+                                    <thead>
+
+                                        <tr>
+                                            <th>Property</th>
+                                            <th>Default</th>
+                                            <th>Description</th>
+                                        </tr>
+
+                                    </thead>
+
+                                    <tbody>
+
+                                        <tr>
+                                            <td>Title</td>
+                                            <td>"ImApp Window"</td>
+                                            <td>Window title</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Width</td>
+                                            <td>800</td>
+                                            <td>Initial width</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Height</td>
+                                            <td>600</td>
+                                            <td>Initial height</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Decorated</td>
+                                            <td>true</td>
+                                            <td>Enable native decorations</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Resizable</td>
+                                            <td>true</td>
+                                            <td>Allow resizing</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Transparent</td>
+                                            <td>false</td>
+                                            <td>Enable transparent framebuffer</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Topmost</td>
+                                            <td>false</td>
+                                            <td>Keep above normal windows</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Maximized</td>
+                                            <td>false</td>
+                                            <td>Start maximized</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Visible</td>
+                                            <td>true</td>
+                                            <td>Show window initially</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Focused</td>
+                                            <td>true</td>
+                                            <td>Request initial focus</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>MousePassthrough</td>
+                                            <td>false</td>
+                                            <td>Pass mouse input through</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>DockingEnabled</td>
+                                            <td>false</td>
+                                            <td>Enable ImGui docking</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>HostWindow</td>
+                                            <td>true</td>
+                                            <td>Create full-window ImGui host</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>TargetFps</td>
+                                            <td>100</td>
+                                            <td>Target rendering rate; 0 disables limiter</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>FontSize</td>
+                                            <td>17</td>
+                                            <td>Embedded font size</td>
+                                        </tr>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Host Window -->
+
+                        <article
+                            class="doc-block"
+                            id="docs-host"
+                        >
+
+                            <h3>
+                                Host Window
+                            </h3>
+
+                            <p>
+                                By default, ImApp creates a full-window
+                                ImGui host and executes your UI inside it.
+                            </p>
+
+
+                            <div class="doc-code">
+
+<pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
+<span class="punctuation">{</span>
+    <span class="property">HostWindow</span> = <span class="kw">true</span>
+<span class="punctuation">}</span>);
+
+app.<span class="method">Run</span>(() =>
+<span class="punctuation">{</span>
+    ImGui.<span class="method">Text</span>(<span class="str">"Hello from ImApp!"</span>);
+<span class="punctuation">}</span>);</code></pre>
+
+                            </div>
+
+
+                            <p>
+                                Set <code>HostWindow = false</code> when
+                                you want to manage the ImGui windows yourself.
+                            </p>
+
+
+                            <div class="doc-code">
+
+<pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
+<span class="punctuation">{</span>
+    <span class="property">HostWindow</span> = <span class="kw">false</span>
+<span class="punctuation">}</span>);
+
+app.<span class="method">Run</span>(() =>
+<span class="punctuation">{</span>
+    ImGui.<span class="method">ShowDemoWindow</span>();
+<span class="punctuation">}</span>);</code></pre>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Docking -->
+
+                        <article
+                            class="doc-block"
+                            id="docs-docking"
+                        >
+
+                            <h3>
+                                Docking
+                            </h3>
+
+                            <p>
+                                Enable Dear ImGui docking through
+                                <code>DockingEnabled</code>.
+                            </p>
+
+
+                            <div class="doc-code">
+
+<pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
+<span class="punctuation">{</span>
+    <span class="property">Width</span> = <span class="num">1200</span>,
+    <span class="property">Height</span> = <span class="num">800</span>,
+    <span class="property">DockingEnabled</span> = <span class="kw">true</span>
+<span class="punctuation">}</span>);
+
+app.<span class="method">Run</span>(() =>
+<span class="punctuation">{</span>
+    ImGui.<span class="method">ShowDemoWindow</span>();
+<span class="punctuation">}</span>);</code></pre>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Transparent -->
+
+                        <article
+                            class="doc-block"
+                            id="docs-transparent"
+                        >
+
+                            <h3>
+                                Transparent & Borderless Windows
+                            </h3>
+
+                            <p>
+                                Combine transparent rendering with disabled
+                                decorations for overlay-style applications.
+                            </p>
+
+
+                            <div class="doc-code">
+
+<pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
+<span class="punctuation">{</span>
+    <span class="property">Decorated</span> = <span class="kw">false</span>,
+    <span class="property">Transparent</span> = <span class="kw">true</span>,
+    <span class="property">MousePassthrough</span> = <span class="kw">true</span>
+<span class="punctuation">}</span>);</code></pre>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Font -->
+
+                        <article
+                            class="doc-block"
+                            id="docs-font"
+                        >
+
+                            <h3>
+                                Font
+                            </h3>
+
+                            <p>
+                                ImApp includes Noto Sans Regular and loads
+                                it automatically. Change its size with
+                                <code>FontSize</code>.
+                            </p>
+
+
+                            <div class="doc-code">
+
+<pre><code><span class="kw">using var</span> app = <span class="kw">new</span> <span class="type">App</span>(<span class="kw">new</span> <span class="type">WindowOptions</span>
+<span class="punctuation">{</span>
+    <span class="property">FontSize</span> = <span class="num">18</span>
+<span class="punctuation">}</span>);</code></pre>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Dependencies -->
+
+                        <article
+                            class="doc-block"
+                            id="docs-dependencies"
+                        >
+
+                            <h3>
+                                Dependencies
+                            </h3>
+
+                            <p>
+                                ImApp provides the application, window,
+                                rendering, timing and lifecycle layer
+                                on top of these components.
+                            </p>
+
+
+                            <div class="stack">
+
+                                <span class="tag">.NET 10</span>
+                                <span class="tag">Dear ImGui</span>
+                                <span class="tag">Hexa.NET.ImGui</span>
+                                <span class="tag">Hexa.NET.GLFW</span>
+                                <span class="tag">Hexa.NET.OpenGL</span>
+                                <span class="tag">ImGui GLFW Backend</span>
+                                <span class="tag">ImGui OpenGL3 Backend</span>
+                                <span class="tag">HexaGen.Runtime</span>
+
+                            </div>
+
+                        </article>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             INSTALLATION
+        ================================================== -->
+
+        <section id="install">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <div class="section-label">
+                        Installation
+                    </div>
+
+                    <h2>
+                        Install and start building.
+                    </h2>
+
+                    <p>
+                        ImApp is available as a NuGet package.
+                    </p>
+
+                </div>
+
+
+                <div class="install-grid">
+
+                    <div class="install-card">
+
+                        <div class="install-card-title">
+                            .NET CLI
+                        </div>
+
+                        <pre><code><span class="type">dotnet</span> add package ImApp</code></pre>
+
+                    </div>
+
+
+                    <div class="install-card">
+
+                        <div class="install-card-title">
+                            PackageReference
+                        </div>
+
+                        <pre><code>&lt;<span class="type">PackageReference</span>
+    <span class="property">Include</span>=<span class="str">"ImApp"</span>
+    <span class="property">Version</span>=<span class="str">"0.2.0"</span> /&gt;</code></pre>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             TECHNOLOGY
+        ================================================== -->
+
+        <section>
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <div class="section-label">
+                        Built with
+                    </div>
+
+                    <h2>
+                        Small by design.
+                    </h2>
+
+                    <p>
+                        ImApp does not replace your UI toolkit.
+                        It provides the application layer around it.
+                    </p>
+
+                </div>
+
+
+                <div class="stack">
+
+                    <span class="tag">.NET 10</span>
+                    <span class="tag">Dear ImGui</span>
+                    <span class="tag">Hexa.NET.ImGui</span>
+                    <span class="tag">GLFW</span>
+                    <span class="tag">OpenGL</span>
+                    <span class="tag">Noto Sans</span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ==================================================
+         FOOTER
+    ================================================== -->
+
+    <footer>
+
+        <div class="container footer-inner">
+
+            <span>
+                ImApp · Lightweight C# desktop applications
+            </span>
+
+            <span>
+                MIT License
+            </span>
+
+        </div>
+
+    </footer>
+
+</body>
+</html>
