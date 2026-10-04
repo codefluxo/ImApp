@@ -938,34 +938,39 @@
    APPLICATION PREVIEW
 ================================================== */
 
-        .app-preview {
-            position: relative;
+.app-preview {
+    position: relative;
 
-            width: 100%;
-            max-width: 1000px;
+    width: fit-content;
+    max-width: 100%;
 
-            margin: 64px auto 0;
+    margin: 64px auto 0;
 
-            overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
 
-            border: 1px solid var(--border);
-            border-radius: 13px;
+    border: 1px solid var(--border);
+    border-radius: 13px;
 
-            background: var(--surface);
+    background: var(--surface);
 
-            box-shadow:
-                0 35px 100px rgba(0, 0, 0, .4),
-                0 0 0 1px rgba(255, 255, 255, .015);
-        }
+    box-shadow:
+        0 35px 100px rgba(0,0,0,.4),
+        0 0 0 1px rgba(255,255,255,.015);
 
-        .app-preview img {
-            display: block;
+    -webkit-overflow-scrolling: touch;
+}
 
-            width: 100%;
-            height: auto;
+.app-preview img {
+    display: block;
 
-            vertical-align: middle;
-        }
+    width: auto;
+    height: auto;
+
+    max-width: none;
+
+    vertical-align: middle;
+}
 
         /* ==================================================
            TABLET
